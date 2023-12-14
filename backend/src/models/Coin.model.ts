@@ -68,6 +68,26 @@ export class Coin {
   /**
    * updates all rows of 'coins' table
    */
+
+  static async insertNames(): Promise<object | void> {
+    const CMC = new Coinmarketcap()
+    const api = await CMC.getCoins()
+
+    try {
+      const updateDB = api.map(async (coin) => {
+        await connection.query(
+          `INSERT INTO coins (coin_id, name, abbr, cmc_rank) VALUES (?, ?, ?, ?)`,
+          [coin.id, coin.name, coin.symbol, coin.cmcRank]
+        )
+      })
+      await Promise.all(updateDB)
+      console.log('Update completed successfully')
+    } catch (error) {
+      console.error('Error updating coins:', error)
+      throw error
+    }
+  }
+
   static async updateNames(): Promise<object | void> {
     const CMC = new Coinmarketcap()
     const api = await CMC.getCoins()
